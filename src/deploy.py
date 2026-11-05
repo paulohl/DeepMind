@@ -1,3 +1,6 @@
+# Once pushed, the fully generated path (${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${TAG}) 
+# becomes the absolute string value provided to the container_uri argument inside deploy.py orchestration pipeline.
+
 # 1. Define deployment parameters
 PROJECT_ID="your-gcp-project-id"
 REGION="us-central1"
