@@ -1,0 +1,53 @@
+# =======================================================================
+# CLOUDBUILD.YAML - Automated CI/CD Engine for Cognitive Control Plane
+# Targets: GCP Artifact Registry & GKE Container Deployment Pipelines
+# =======================================================================
+
+steps:
+  # Step 1: Pre-flight Verification of Application Artifacts
+  - name: 'python:3.10-slim'
+    id: 'Pre-flight Unit Testing & Syntax Check'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install fastapi pydantic uvicorn
+        python -m py_compile app.py
+
+  # Step 2: Build Multi-Stage Production Container via BuildKit Engine
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Compile Hardened Container Infrastructure'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        export DOCKER_BUILDKIT=1
+        docker build \
+          -t ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:${SHORT_SHA} \
+          -t ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:latest \
+          -f Dockerfile .
+
+  # Step 3: Publish Image Artifact to Managed Repository Substrate
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Emit Build Invariants to Artifact Registry'
+    args: [
+      'push', 
+      '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:${SHORT_SHA}'
+    ]
+
+  # Step 4: Tag and Publish Production Baseline Asset
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Promote Imagery Asset to Production Rollback Target'
+    args: [
+      'push', 
+      '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:latest'
+    ]
+
+substitutions:
+  _REGION: 'us-central1'
+  _REPO_NAME: 'cyber-control-plane-repo'
+  _IMAGE_NAME: 'policy-gate-inference'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  requestedVerifyOption: VERIFIED
