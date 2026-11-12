@@ -1,5 +1,5 @@
 
-
+```text
 gcp-cognitive-control-plane/      
 │      
 ├── .gitignore      
@@ -17,3 +17,6 @@ gcp-cognitive-control-plane/
 └── /tripwire_function/              # WORLD 3: The automated intervention circuit breaker      
     ├── main.py                      # Google Cloud Function script parsing Pub/Sub alerts      
     └── requirements.txt             # (functions-framework, google-cloud-aiplatform)      
+```
+
+
