@@ -1,22 +1,9 @@
+# The Execution Sequence
 
-```text
-gcp-cognitive-control-plane/      
-│      
-├── .gitignore      
-├── README.md      
-│      
-├── /edge_container/                 # WORLD 1: The runtime policy middleware      
-│   ├── app.py                       # The FastAPI policy gate and Lipschitz drift checks      
-│   ├── Dockerfile                   # Packages app.py for Artifact Registry      
-│   └── requirements.txt             # (fastapi, uvicorn, pydantic, google-cloud-aiplatform)      
-│      
-├── /infrastructure/                 # WORLD 2: Vertex AI Orchestration & CI/CD      
-│   ├── deploy.py                    # Python script to provision the Vertex AI Endpoint      
-│   └── cloudbuild.yaml              # The CI/CD pipeline that compiles the container      
-│      
-└── /tripwire_function/              # WORLD 3: The automated intervention circuit breaker      
-    ├── main.py                      # Google Cloud Function script parsing Pub/Sub alerts      
-    └── requirements.txt             # (functions-framework, google-cloud-aiplatform)      
-```
+The deployment sequence moves entirely into the automated cloud:      
 
+* *Connect to GCP*: You will link this GitHub repository directly to Google Cloud Build.
+* *The Trigger*: The moment you push a commit to the main branch, Cloud Build reads your cloudbuild.yaml file.
+* ^The Automated Build*: Cloud Build securely compiles the /edge_container code into a Docker image, tags it, and pushes it to your Google Cloud Artifact Registry.
+* *The Deployment*: You (or a subsequent pipeline step) run deploy.py to pull that newly minted image and launch it onto the TPU-backed Vertex AI Endpoint.
 
